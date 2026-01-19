@@ -107,19 +107,20 @@ export async function GET(request: Request) {
       .limit(20);
 
     // Get referral stats
+        // Get referral stats - First fetch venue member IDs
+    const { data: venueMembers } = await supabase
+      .from('members')
+      .select('id')
+      .eq('venue_id', venueId);
+
+    const venueMemberIds = venueMembers?.map((m) => m.id) || [];
+
+    // Then get referral count
     const { count: totalReferrals } = await supabase
       .from('referrals')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'completed')
-      .in(
-        'referrer_id',
-        (await supabase
-          .from('members')
-          .select('id')
-          .eq('venue_id', venueId)
-          .then((res) => res.data?.map((m) => m.id) || [])) as any
-      );
-
+      .in('referrer_id', venueMemberIds);
     // Calculate growth rate
     const halfwayDate = new Date(startDate);
     halfwayDate.setDate(
