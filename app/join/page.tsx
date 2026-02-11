@@ -80,7 +80,7 @@ export default async function JoinPage({
                   </form>
                 ) : (
                   <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-                    Visit the venue or contact them to get a membership. Once you&apos;re a member, you&apos;ll see your pass and QR code here.
+                    Get a membership at {v.name} to see your pass and rewards here. Visit the venue or contact them to sign up.
                   </p>
                 )}
               </li>

@@ -275,16 +275,6 @@ export default async function DashboardPage({
               )}
             </div>
           </section>
-
-          <form action="/auth/logout" method="post" className="mt-8">
-            <button
-              type="submit"
-              className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
-              style={{ color: "var(--venue-text-muted)" }}
-            >
-              Log out
-            </button>
-          </form>
         </>
       ) : (
         /* Admin / member dashboard: memberships, tier rewards, your activity */
@@ -433,16 +423,6 @@ export default async function DashboardPage({
           )}
 
           <DashboardMockStats venueName={selectedVenueName ?? undefined} />
-
-          <form action="/auth/logout" method="post" className="mt-6">
-            <button
-              type="submit"
-              className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
-              style={{ color: "var(--venue-text-muted)" }}
-            >
-              Log out
-            </button>
-          </form>
         </>
       )}
     </div>
