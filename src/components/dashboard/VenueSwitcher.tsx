@@ -18,7 +18,8 @@ export function VenueSwitcher({
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLSelectElement>) => {
       const slug = e.target.value?.trim();
-      if (!slug || slug === (currentSlug ?? "")) return;
+      const effectiveCurrent = currentSlug ?? "";
+      if (!slug || slug === effectiveCurrent) return;
       setSwitching(true);
       try {
         const res = await fetch("/api/set-venue?next=/dashboard", {
