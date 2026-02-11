@@ -100,6 +100,32 @@ To make **coteri.vercel.app** point at a specific deployment (e.g. the latest pr
 
 Run this after each production deploy if you want the custom alias to always point at the latest deployment, or use Vercel’s default “Production” assignment from the main branch.
 
+**If coteri.vercel.app shows “404: NOT FOUND”:**
+
+1. **Vercel Dashboard → your project (e.g. coteri) → Settings → Domains**  
+   - Confirm `coteri.vercel.app` is listed. If not, add it (Vercel usually adds it when the project name matches).
+   - Ensure it’s assigned to **this** project and not another.
+
+2. **Deployments**  
+   - Open **Deployments** and check that the **latest production** deployment is **Ready** (green), not failed or cancelled.  
+   - If the last prod build failed (e.g. build error), fix the build, push again, and wait for a new successful deployment.
+
+3. **Assign production to the latest deployment**  
+   - In **Deployments**, find the successful deployment you want to serve.  
+   - Click the **⋮** menu → **Assign to Production** (or **Promote to Production**).  
+   - That makes the project’s production domain(s), including `coteri.vercel.app`, point at that deployment.
+
+4. **Optional: force alias via CLI**  
+   - After a successful deploy, copy that deployment’s URL (e.g. `coteri-xxxxx-phil-boekelheides-projects.vercel.app`).  
+   - Run: `vercel alias set <that-url> coteri.vercel.app`
+
+**If 404 persists (Code: NOT_FOUND, ID: sfo1::...):**
+
+- **Test the deployment URL:** Open the deployment URL (e.g. `https://coteri-e9qpkw07j-phil-boekelheides-projects.vercel.app/`) in a new tab. If that works but `coteri.vercel.app` does not, the domain is not bound to that deployment; re-assign (step 3) or remove and re-add the domain in **Settings → Domains**. If the deployment URL also 404s, check **Runtime Logs** for that deployment.
+- **Production branch:** **Settings → Git** → set **Production Branch** to `main`. Otherwise deployments from `main` are Previews and the production domain serves an older or empty deployment.
+- **Root Directory:** **Settings → General** → **Root Directory** must be empty or `.`.
+- **Redeploy with cache cleared:** **Deployments** → **⋮** → **Redeploy** → enable **Clear build cache**, then assign the new deployment to Production.
+
 ---
 
 ## Resolved production issues (reference)
