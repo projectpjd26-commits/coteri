@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database.types';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2026-01-28.clover',
 });
 
 const supabase = createClient<Database>(
@@ -16,7 +16,8 @@ const supabase = createClient<Database>(
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = headers().get('Stripe-Signature') as string;
+  const headersList = await headers();
+  const signature = headersList.get('Stripe-Signature') as string;
 
   let event: Stripe.Event;
 
@@ -36,57 +37,35 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         
-        // Update user profile with subscription info
-        await supabase
-          .from('profiles')
-          .update({
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
-            subscription_status: 'active',
-            membership_tier: session.metadata?.tier as any,
-          })
-          .eq('id', session.metadata?.userId!);
+        // Update user profile with subscription info (cast for strict Database types)
+        const profileUpdate = {
+          stripe_customer_id: session.customer as string,
+          stripe_subscription_id: session.subscription as string,
+          subscription_status: 'active',
+          membership_tier: (session.metadata?.tier as 'free' | 'basic' | 'premium') ?? 'free',
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('profiles') as any).update(profileUpdate).eq('id', session.metadata?.userId!);
         
         break;
       }
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        
-        await supabase
-          .from('profiles')
-          .update({
-            subscription_status: subscription.status as any,
-          })
-          .eq('stripe_subscription_id', subscription.id);
-        
+        const status = subscription.status as 'active' | 'canceled' | 'past_due';
+        await (supabase.from('profiles') as any).update({ subscription_status: status }).eq('stripe_subscription_id', subscription.id);
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        
-        await supabase
-          .from('profiles')
-          .update({
-            subscription_status: 'canceled',
-            membership_tier: 'free',
-          })
-          .eq('stripe_subscription_id', subscription.id);
-        
+        await (supabase.from('profiles') as any).update({ subscription_status: 'canceled', membership_tier: 'free' }).eq('stripe_subscription_id', subscription.id);
         break;
       }
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        
-        await supabase
-          .from('profiles')
-          .update({
-            subscription_status: 'past_due',
-          })
-          .eq('stripe_customer_id', invoice.customer as string);
-        
+        await (supabase.from('profiles') as any).update({ subscription_status: 'past_due' }).eq('stripe_customer_id', invoice.customer as string);
         break;
       }
 
