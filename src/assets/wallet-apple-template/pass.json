@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.example.membership",
+  "teamIdentifier": "XXXXXXXXXX",
+  "organizationName": "Venue",
+  "description": "Membership pass",
+  "serialNumber": "placeholder",
+  "storeCard": {
+    "primaryFields": [],
+    "secondaryFields": [],
+    "auxiliaryFields": [],
+    "backFields": []
+  }
+}
