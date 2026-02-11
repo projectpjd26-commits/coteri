@@ -1,18 +1,22 @@
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { VenueLauncherShell } from "@/components/home/VenueLauncherShell";
-import { getHomeVenueData } from "@/lib/home-venues";
+import { createServerSupabase } from "@/lib/supabase-server";
 
+/**
+ * /home when signed in → launch splash. When not signed in, no sidebar (just children).
+ */
 export default async function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const { venues, currentSlug } = await getHomeVenueData(cookieStore);
+  const supabase = createServerSupabase(cookieStore, true);
+  const { data: { user } } = await supabase.auth.getUser();
 
-  return (
-    <VenueLauncherShell venues={venues} currentSlug={currentSlug} homeHref="/home">
-      {children}
-    </VenueLauncherShell>
-  );
+  if (user) {
+    redirect("/launch");
+  }
+
+  return <>{children}</>;
 }

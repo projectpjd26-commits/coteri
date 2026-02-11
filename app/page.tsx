@@ -1,25 +1,23 @@
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { VenueLauncherShell } from "@/components/home/VenueLauncherShell";
-import { HomeHeroContent } from "@/components/home/HomeHeroContent";
-import { getHomeVenueData } from "@/lib/home-venues";
+import { createServerSupabase } from "@/lib/supabase-server";
+import { LandingSignIn } from "@/components/home/LandingSignIn";
 
-/** Force server render so venue launcher and cookies work on Vercel. */
+/** Force server render so auth check runs on Vercel. */
 export const dynamic = "force-dynamic";
 
 /**
- * Root route: venue launcher (home with venue chooser). Rendered here to avoid
- * redirect and prevent 404 on edge/static.
+ * Root: sign-in page (no sidebar). OAuth + email on this page.
+ * If already signed in, go to launch splash.
  */
 export default async function RootPage() {
   const cookieStore = await cookies();
-  const { venues, currentSlug } = await getHomeVenueData(cookieStore);
+  const supabase = createServerSupabase(cookieStore, true);
+  const { data: { user } } = await supabase.auth.getUser();
 
-  return (
-    <VenueLauncherShell venues={venues} currentSlug={currentSlug} homeHref="/">
-      <Suspense fallback={<div className="flex-1 flex items-center justify-center p-10 text-slate-500">Loading…</div>}>
-        <HomeHeroContent />
-      </Suspense>
-    </VenueLauncherShell>
-  );
+  if (user) {
+    redirect("/launch");
+  }
+
+  return <LandingSignIn defaultNext="/launch" showHero />;
 }

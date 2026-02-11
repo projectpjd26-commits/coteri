@@ -34,8 +34,8 @@ export async function GET(request: Request) {
       cookieStore.set(AUTH_NEXT_COOKIE, "", { path: "/", maxAge: 0 });
     }
   }
-  // Default: send signed-in users to venue launcher (home)
-  const defaultPath = "/home";
+  // Default: send signed-in users to launch splash (banner launcher or your venue)
+  const defaultPath = "/launch";
   const redirectPath =
     next && next.startsWith("/") && !next.startsWith("//") ? next : defaultPath;
 

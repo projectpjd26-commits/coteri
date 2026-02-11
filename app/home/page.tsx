@@ -1,10 +1,8 @@
-import { Suspense } from "react";
-import { HomeHeroContent } from "@/components/home/HomeHeroContent";
+import { LandingSignIn } from "@/components/home/LandingSignIn";
 
+/**
+ * Same as root: sign-in with OAuth + email, no sidebar. Signed-in users hit layout redirect to /launch.
+ */
 export default function HomePage() {
-  return (
-    <Suspense fallback={<div className="flex-1 flex items-center justify-center p-10 text-slate-500">Loading…</div>}>
-      <HomeHeroContent />
-    </Suspense>
-  );
+  return <LandingSignIn defaultNext="/launch" showHero />;
 }
