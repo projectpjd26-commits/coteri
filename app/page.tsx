@@ -5,6 +5,7 @@ import { createServerSupabase } from "@/lib/supabase-server";
 import { HeroPreview } from "@/components/HeroPreview";
 import { BannerColumnsPreview } from "@/components/BannerColumnsPreview";
 import HeroBackground from "@/components/HeroBackground";
+import { PUBLIC_LOGIN_DISABLED } from "@/lib/constants";
 
 function HowItWorksStep({
   number,
@@ -96,12 +97,14 @@ export default async function RootPage() {
             >
               Launch Your Venue
             </Link>
-            <Link
-              href="/sign-in"
-              className="px-6 py-3 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 bg-emerald-800/90 text-emerald-100 border border-emerald-700/80 hover:bg-emerald-700/90 focus:ring-emerald-500"
-            >
-              Sign In
-            </Link>
+            {!PUBLIC_LOGIN_DISABLED && (
+              <Link
+                href="/sign-in"
+                className="px-6 py-3 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 bg-emerald-800/90 text-emerald-100 border border-emerald-700/80 hover:bg-emerald-700/90 focus:ring-emerald-500"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           <div className="relative mt-20">
@@ -332,12 +335,14 @@ export default async function RootPage() {
             >
               Launch Your Venue
             </Link>
-            <Link
-              href="/sign-in?admin=1"
-              className="px-6 py-3 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 bg-rose-800/90 text-rose-100 border border-rose-700/80 hover:bg-rose-700/90 focus:ring-rose-500"
-            >
-              Admin Sign-In
-            </Link>
+            {!PUBLIC_LOGIN_DISABLED && (
+              <Link
+                href="/sign-in?admin=1"
+                className="px-6 py-3 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 bg-rose-800/90 text-rose-100 border border-rose-700/80 hover:bg-rose-700/90 focus:ring-rose-500"
+              >
+                Admin Sign-In
+              </Link>
+            )}
           </div>
         </div>
       </section>

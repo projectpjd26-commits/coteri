@@ -18,6 +18,9 @@ export const AUTH_NEXT_COOKIE = "coteri_auth_next";
 /** Cookie set at login: "admin" | "venue_owner" | "member" so the app can show who is logged in. */
 export const USER_ROLE_COOKIE = "coteri_user_role";
 
+/** When true: hide Sign In / Admin Sign-In on splash and show "disabled" on /sign-in. Flip to false when ready to allow logins. */
+export const PUBLIC_LOGIN_DISABLED = true;
+
 /** Pilot venue slugs; use for validation and fallback lists. */
 export const PILOT_VENUE_SLUGS = ["the-function-sf", "the-starry-plough"] as const;
 

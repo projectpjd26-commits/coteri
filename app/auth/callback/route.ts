@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AUTH_NEXT_COOKIE, USER_ROLE_COOKIE } from "@/lib/constants";
-import { getRoleForUser } from "@/lib/dashboard-auth";
-import { createServerSupabase } from "@/lib/supabase-server";
-
-const ROLE_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+import { AUTH_NEXT_COOKIE } from "@/lib/constants";
 
 /** Same origin resolution as set-venue: supports proxy (x-forwarded-host). */
 function getOrigin(request: Request): string {
@@ -39,28 +35,11 @@ export async function GET(request: Request) {
   const redirectPath =
     next && next.startsWith("/") && !next.startsWith("//") ? next : defaultPath;
 
+  // PKCE code verifier lives in the browser; exchange must happen client-side.
+  // Redirect to /auth/complete so the browser client can exchangeCodeForSession and then redirect.
   if (code) {
-    const supabase = createServerSupabase(cookieStore);
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
-      return NextResponse.redirect(`${origin}/sign-in?error=auth&message=${encodeURIComponent(error.message)}`);
-    }
-    // Identify role at login and set cookie so the app can show "Admin" vs "Venue owner" vs "Member"
-    if (data?.user) {
-      const { data: staffRows } = await supabase
-        .from("venue_staff")
-        .select("venue_id")
-        .eq("user_id", data.user.id)
-        .limit(1);
-      const hasStaffRows = (staffRows?.length ?? 0) > 0;
-      const role = getRoleForUser(data.user, hasStaffRows);
-      cookieStore.set(USER_ROLE_COOKIE, role, {
-        path: "/",
-        httpOnly: false,
-        sameSite: "lax",
-        maxAge: ROLE_COOKIE_MAX_AGE,
-      });
-    }
+    const params = new URLSearchParams({ code, next: redirectPath });
+    return NextResponse.redirect(`${origin}/auth/complete?${params.toString()}`);
   }
 
   return NextResponse.redirect(`${origin}${redirectPath.startsWith("/") ? redirectPath : `/${redirectPath}`}`);
