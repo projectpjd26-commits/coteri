@@ -1,31 +1,33 @@
 "use client";
 
 /**
- * Decorative animated banner columns for the splash — suggests the owner's venue launcher
- * without real venue names or links. Placeholder cards only.
+ * Decorative animated banner rows for the splash — three rows scrolling horizontally.
+ * Mock venue names (no real data). Suggests the owner's venue launcher.
  */
 
-const PLACEHOLDERS = [
-  { label: "Venue", gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)" },
-  { label: "Venue", gradient: "linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%)" },
-  { label: "Venue", gradient: "linear-gradient(135deg, #422006 0%, #b45309 50%, #d97706 100%)" },
-  { label: "Venue", gradient: "linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%)" },
-  { label: "Venue", gradient: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)" },
-  { label: "Venue", gradient: "linear-gradient(135deg, #1e3a5f 0%, #0369a1 50%, #0ea5e9 100%)" },
+const MOCK_VENUES = [
+  { name: "The Function SF", gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)" },
+  { name: "The Starry Plough", gradient: "linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%)" },
+  { name: "Pacific Greens", gradient: "linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%)" },
+  { name: "La Rueda", gradient: "linear-gradient(135deg, #422006 0%, #b45309 50%, #d97706 100%)" },
+  { name: "Strike Zone", gradient: "linear-gradient(135deg, #1e3a5f 0%, #0369a1 50%, #0ea5e9 100%)" },
+  { name: "The Velvet Room", gradient: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)" },
+  { name: "The Hideout", gradient: "linear-gradient(135deg, #451a03 0%, #9a3412 50%, #c2410c 100%)" },
+  { name: "Bar None", gradient: "linear-gradient(135deg, #1c1917 0%, #44403c 50%, #78716c 100%)" },
 ];
 
 function PlaceholderCard({
-  label,
+  name,
   gradient,
   className = "",
 }: {
-  label: string;
+  name: string;
   gradient: string;
   className?: string;
 }) {
   return (
     <div
-      className={`relative rounded-2xl overflow-hidden aspect-[3/5] min-h-[200px] sm:min-h-[240px] flex-shrink-0 ${className}`}
+      className={`relative rounded-2xl overflow-hidden aspect-[3/5] w-[100px] min-h-[160px] sm:w-[120px] sm:min-h-[200px] flex-shrink-0 ${className}`}
       aria-hidden
     >
       <span
@@ -33,9 +35,9 @@ function PlaceholderCard({
         style={{ background: gradient }}
       />
       <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25" />
-      <span className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
-        <span className="font-semibold text-amber-400 drop-shadow-lg text-lg sm:text-xl">
-          {label}
+      <span className="absolute inset-0 flex flex-col justify-end p-2 sm:p-3">
+        <span className="font-semibold text-amber-400 drop-shadow-lg text-xs sm:text-sm line-clamp-2">
+          {name}
         </span>
       </span>
     </div>
@@ -54,35 +56,41 @@ export function BannerColumnsPreview() {
         </p>
       </div>
 
-      <div className="flex justify-center gap-6 md:gap-10 px-4">
-        {/* Column 1 — scrolls up */}
-        <div className="flex flex-col gap-4 banner-column-up">
-          {PLACEHOLDERS.slice(0, 3).map((p, i) => (
-            <PlaceholderCard key={`c1-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
-          {PLACEHOLDERS.slice(0, 2).map((p, i) => (
-            <PlaceholderCard key={`c1-dup-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
+      <div className="flex flex-col gap-6 md:gap-8">
+        {/* Row 1 — scrolls left */}
+        <div className="w-full overflow-hidden">
+          <div className="flex gap-4 w-max banner-row-left">
+            {MOCK_VENUES.slice(0, 4).map((v, i) => (
+              <PlaceholderCard key={`r1-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+            {MOCK_VENUES.slice(0, 4).map((v, i) => (
+              <PlaceholderCard key={`r1-dup-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+          </div>
         </div>
 
-        {/* Column 2 — scrolls down */}
-        <div className="flex flex-col gap-4 banner-column-down" style={{ animationDelay: "-4s" }}>
-          {PLACEHOLDERS.slice(2, 5).map((p, i) => (
-            <PlaceholderCard key={`c2-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
-          {PLACEHOLDERS.slice(2, 4).map((p, i) => (
-            <PlaceholderCard key={`c2-dup-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
+        {/* Row 2 — scrolls right */}
+        <div className="w-full overflow-hidden">
+          <div className="flex gap-4 w-max banner-row-right" style={{ animationDelay: "-5s" }}>
+            {MOCK_VENUES.slice(2, 6).map((v, i) => (
+              <PlaceholderCard key={`r2-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+            {MOCK_VENUES.slice(2, 6).map((v, i) => (
+              <PlaceholderCard key={`r2-dup-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+          </div>
         </div>
 
-        {/* Column 3 — scrolls up, different speed */}
-        <div className="flex flex-col gap-4 banner-column-up-slow" style={{ animationDelay: "-8s" }}>
-          {PLACEHOLDERS.slice(3, 6).map((p, i) => (
-            <PlaceholderCard key={`c3-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
-          {PLACEHOLDERS.slice(4, 6).map((p, i) => (
-            <PlaceholderCard key={`c3-dup-${i}`} label={p.label} gradient={p.gradient} />
-          ))}
+        {/* Row 3 — scrolls left, different speed */}
+        <div className="w-full overflow-hidden">
+          <div className="flex gap-4 w-max banner-row-left-slow" style={{ animationDelay: "-12s" }}>
+            {MOCK_VENUES.slice(4, 8).map((v, i) => (
+              <PlaceholderCard key={`r3-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+            {MOCK_VENUES.slice(4, 8).map((v, i) => (
+              <PlaceholderCard key={`r3-dup-${i}`} name={v.name} gradient={v.gradient} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

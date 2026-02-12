@@ -168,21 +168,47 @@ body {
   border-bottom-color: var(--venue-accent, #d4a853);
 }
 
-/* Splash: moving banner columns preview */
-@keyframes banner-column-up {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
+/* Splash: moving banner rows (horizontal scroll) */
+@keyframes banner-row-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
-@keyframes banner-column-down {
-  0% { transform: translateY(-50%); }
-  100% { transform: translateY(0); }
+@keyframes banner-row-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
-.banner-column-up {
-  animation: banner-column-up 25s linear infinite;
+.banner-row-left {
+  animation: banner-row-left 30s linear infinite;
+  will-change: transform;
 }
-.banner-column-down {
-  animation: banner-column-down 28s linear infinite;
+.banner-row-right {
+  animation: banner-row-right 26s linear infinite;
+  will-change: transform;
 }
-.banner-column-up-slow {
-  animation: banner-column-up 22s linear infinite;
+.banner-row-left-slow {
+  animation: banner-row-left 34s linear infinite;
+  will-change: transform;
+}
+
+/* Splash hero: headline shimmer */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.animate-shimmer {
+  animation: shimmer 6s linear infinite;
+}
+
+/* Splash hero: dashboard light sweep */
+@keyframes sweep {
+  0% { left: -100%; }
+  100% { left: 150%; }
+}
+.animate-sweep {
+  animation: sweep 8s ease-in-out infinite;
+}
+
+/* Splash hero: perspective for 3D tilt */
+.perspective-\[1200px\] {
+  perspective: 1200px;
 }

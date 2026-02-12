@@ -18,7 +18,7 @@ export default async function RootPage() {
 
   return (
     <>
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950 text-white">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_#0f172a_0%,_#020617_60%)] text-white">
         {/* Ambient Radial Glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-indigo-500/10 blur-[180px] rounded-full" />
@@ -33,12 +33,12 @@ export default async function RootPage() {
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-tight">
             Community and Membership.
-            <span className="block bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-white via-white to-slate-400 bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
               Operationalized—and Personified.
             </span>
           </h1>
 
-          <p className="mt-8 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+          <p className="mt-10 md:mt-12 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
             Payments. Verification. Real-world access.
             Unified infrastructure for physical venues and their communities.
           </p>
@@ -46,26 +46,35 @@ export default async function RootPage() {
           <div className="mt-12 flex flex-wrap justify-center gap-4">
             <Link
               href="/sign-in"
-              className="px-6 py-3 rounded-md bg-white text-black font-medium hover:bg-slate-200 transition shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-950"
+              className="px-6 py-3 rounded-md bg-white text-black font-medium shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-white"
+            >
+              Create new
+            </Link>
+            <Link
+              href="/sign-in"
+              className="px-6 py-3 rounded-md border border-slate-700 bg-slate-900/40 backdrop-blur-sm text-slate-300 hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-slate-400"
             >
               Sign in
             </Link>
             <Link
-              href="/sign-in"
-              className="px-6 py-3 rounded-md border border-slate-600 text-slate-200 hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-950"
-            >
-              Create account
-            </Link>
-            <Link
               href="/sign-in?admin=1"
-              className="px-6 py-3 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800/80 transition text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+              className="px-6 py-3 rounded-md border border-slate-600 bg-slate-800/30 backdrop-blur-sm text-slate-400 hover:bg-slate-800/50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-slate-500"
             >
               Admin sign-in
             </Link>
           </div>
 
-          <div className="mt-20">
-            <HeroPreview />
+          <div className="relative mt-20">
+            {/* Horizon Light — behind card for stage presence */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[1200px] h-[400px] bg-gradient-to-t from-indigo-500/10 via-indigo-500/5 to-transparent blur-3xl pointer-events-none"
+              aria-hidden
+            />
+            <div className="perspective-[1200px] relative z-10">
+              <div className="transition-transform duration-700 hover:rotate-x-[2deg] hover:-rotate-y-[2deg]">
+                <HeroPreview />
+              </div>
+            </div>
           </div>
         </div>
       </section>
