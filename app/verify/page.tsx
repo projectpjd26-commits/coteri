@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { verifySignedPayload } from "@/lib/verify-signed-payload";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { VerifyForm } from "./verify-form";
+import { ALLOWED_VERIFY_ROLES, getVenueStaffRoleLabel } from "@/lib/constants";
+import type { VenueStaffRoleValue } from "@/lib/constants";
 
 const VERIFY_RESULT_COOKIE = "verify_result";
 const VERIFY_LAST_AT_COOKIE = "verify_last_at";
@@ -189,7 +191,6 @@ export async function verifyMembershipAction(
     return out;
   }
 
-  const ALLOWED_VERIFY_ROLES = ["staff", "manager", "owner"] as const;
   const { data: staffRows } = await supabase
     .from("venue_staff")
     .select("venue_id, role")
@@ -199,7 +200,7 @@ export async function verifyMembershipAction(
   if (
     !staffRecord?.venue_id ||
     !staffRecord.role ||
-    !ALLOWED_VERIFY_ROLES.includes(staffRecord.role as (typeof ALLOWED_VERIFY_ROLES)[number])
+    !ALLOWED_VERIFY_ROLES.includes(staffRecord.role as VenueStaffRoleValue)
   ) {
     const out: VerifyApiResult = {
       result: "INVALID",
@@ -356,7 +357,6 @@ export default async function VerifyPage({
     redirect("/");
   }
 
-  const ALLOWED_VERIFY_ROLES = ["staff", "manager", "owner"] as const;
   const { data: staffRows } = await supabase
     .from("venue_staff")
     .select("id, role, venue_id, venues(name)")
@@ -367,7 +367,7 @@ export default async function VerifyPage({
   if (
     !staffRecord ||
     !staffRecord.role ||
-    !ALLOWED_VERIFY_ROLES.includes(staffRecord.role as (typeof ALLOWED_VERIFY_ROLES)[number])
+    !ALLOWED_VERIFY_ROLES.includes(staffRecord.role as VenueStaffRoleValue)
   ) {
     redirect("/");
   }
@@ -398,7 +398,7 @@ export default async function VerifyPage({
       <VerifyForm
         initialResult={result}
         venueName={venueName}
-        staffRole={staffRecord.role}
+        staffRole={getVenueStaffRoleLabel(staffRecord.role)}
         verifyAction={verifyMembershipAction}
       />
     </div>

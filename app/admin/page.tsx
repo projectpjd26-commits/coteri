@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Alert } from "@/components/ui/Alert";
 import { isDemoMode } from "@/lib/constants";
 import { isDashboardAdmin } from "@/lib/dashboard-auth";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -49,18 +50,27 @@ export default async function AdminPage({
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           {isDemoMode()
             ? "Grant membership at a venue or reset demo data (memberships + verification events for demo venues only)."
-            : "Admin access. Demo grant and reset are disabled in production."}
+            : "Manage members and access. Demo grant and reset are disabled in production."}
         </p>
 
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/verify"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          >
+            Verify at door →
+          </Link>
+        </div>
+
         {granted === "ok" && (
-          <div className="mt-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
+          <Alert variant="success" className="mt-6">
             Membership granted. Open the venue in the dashboard or go to <Link href="/join" className="font-medium underline">Get membership</Link> to grant another.
-          </div>
+          </Alert>
         )}
         {reset === "ok" && (
-          <div className="mt-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
+          <Alert variant="success" className="mt-6">
             Demo reset completed. Memberships and verification events for demo venues have been cleared. Use &quot;Grant membership&quot; below to give access again.
-          </div>
+          </Alert>
         )}
 
         {isDemoMode() && (
@@ -112,7 +122,7 @@ export default async function AdminPage({
         )}
 
         <p className="mt-8 text-xs text-slate-500 dark:text-slate-400">
-          See <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">docs/CEO-MEMBERSHIP-ACCESS.md</code> for full details.
+          Member list and tier actions: coming soon. See <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">docs/CEO-MEMBERSHIP-ACCESS.md</code> for grant/reset details.
         </p>
       </main>
     </div>

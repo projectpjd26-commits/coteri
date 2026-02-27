@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useDemo } from '@/components/demo/DemoContext'
 import { StartDemoButton } from '@/components/demo/StartDemoButton'
@@ -36,7 +36,6 @@ function haptic(type: 'success' | 'failure') {
 
 export function VerifyClient({ initialUserId, initialResult }: VerifyClientProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
   const [mode, setMode] = useState<'paste' | 'code'>('paste')
   const [input, setInput] = useState('')
@@ -46,7 +45,6 @@ export function VerifyClient({ initialUserId, initialResult }: VerifyClientProps
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const userIdFromUrl = searchParams.get('user_id')
   const showResult = Boolean(initialUserId && initialResult !== undefined)
   const isValid = initialResult?.valid ?? false
   const { demoStep, isDemoMode, nextStep } = useDemo()

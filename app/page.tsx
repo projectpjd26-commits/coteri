@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { HeroPreview } from "@/components/HeroPreview";
 import { BannerColumnsPreview } from "@/components/BannerColumnsPreview";
+import { VenueMockupsSection } from "@/components/home/VenueMockupsSection";
 import HeroBackground from "@/components/HeroBackground";
-import { PUBLIC_LOGIN_DISABLED } from "@/lib/constants";
+import { PUBLIC_LOGIN_DISABLED, getFallbackVenues, MOCK_VENUE_SLUGS } from "@/lib/constants";
 
 function HowItWorksStep({
   number,
@@ -56,13 +56,41 @@ export default async function RootPage() {
   const supabase = createServerSupabase(cookieStore, true);
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (user) {
-    redirect("/launch");
-  }
+  const mockVenues = getFallbackVenues().filter((v) =>
+    (MOCK_VENUE_SLUGS as readonly string[]).includes(v.slug)
+  );
 
   return (
     <>
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden text-white group">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 bg-slate-950/90 backdrop-blur-sm border-b border-white/5">
+        <Link href="/" className="text-lg font-semibold tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded">
+          COTERI
+        </Link>
+        <nav className="flex items-center gap-3">
+          <Link
+            href="/launch"
+            className="text-sm font-medium text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-3 py-2"
+          >
+            Launch
+          </Link>
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-3 py-2"
+            >
+              Dashboard
+            </Link>
+          ) : !PUBLIC_LOGIN_DISABLED ? (
+            <Link
+              href="/sign-in"
+              className="text-sm font-medium text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-3 py-2"
+            >
+              Sign in
+            </Link>
+          ) : null}
+        </nav>
+      </header>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden text-white group pt-16">
         <HeroBackground />
 
         {/* Grain Overlay */}
@@ -84,7 +112,7 @@ export default async function RootPage() {
           </p>
 
           <p className="mt-6 text-slate-400 max-w-2xl mx-auto">
-            COTERI is unified membership infrastructure for physical venues — combining payments, identity, access control, and analytics into one system.
+            COTERI is unified membership infrastructure for physical venues — combining payments, identity, access control, analytics, and AI-powered venue intelligence in one system.
           </p>
           <p className="mt-3 text-slate-400 max-w-2xl mx-auto">
             Turn your venue into a verified, recurring, data-aware membership engine.
@@ -239,7 +267,67 @@ export default async function RootPage() {
         </div>
       </section>
 
+      {/* Venue Intelligence — AI on the marketing page */}
+      <section className="relative z-20 w-full bg-slate-950 border-b border-slate-800 py-24 md:py-32">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-center text-2xl md:text-3xl font-semibold tracking-tight text-white mb-4">
+            Venue Intelligence
+          </h2>
+          <p className="text-center text-slate-400 mb-16 max-w-2xl mx-auto">
+            AI that works for your venue: proactive insights, predictions, and an optional copilot. No extra spreadsheets.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+            <div className="flex flex-col items-start gap-3">
+              <span className="flex-shrink-0 text-indigo-400/90" aria-hidden>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                </svg>
+              </span>
+              <h3 className="text-lg font-medium text-white">Proactive Insights</h3>
+              <p className="text-slate-400 text-sm">
+                Narrative summaries and recommendations generated from your verification and membership data — surface what matters without digging.
+              </p>
+            </div>
+            <div className="flex flex-col items-start gap-3">
+              <span className="flex-shrink-0 text-indigo-400/90" aria-hidden>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+              </span>
+              <h3 className="text-lg font-medium text-white">Predictions &amp; Signals</h3>
+              <p className="text-slate-400 text-sm">
+                Staffing and demand signals, churn and engagement indicators, and anomaly detection — so you can act before trends become problems.
+              </p>
+            </div>
+            <div className="flex flex-col items-start gap-3">
+              <span className="flex-shrink-0 text-indigo-400/90" aria-hidden>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.08-.902-.455-1.226a11.647 11.647 0 01-2.498-5.758 3.493 3.493 0 01 5.316-3.407A5.974 5.974 0 0112 6.001c.35 0 .699.025 1.04.074a5.116 5.116 0 013.412-1.416 3.493 3.493 0 014.602 5.106 11.648 11.648 0 01-2.498 5.758 4.48 4.48 0 00-.455 1.226 5.969 5.969 0 01.474.065 5.972 5.972 0 005.41 20.97 9.764 9.764 0 002.555.337c4.97 0 9-3.694 9-8.25z" />
+                </svg>
+              </span>
+              <h3 className="text-lg font-medium text-white">Venue Copilot</h3>
+              <p className="text-slate-400 text-sm">
+                Ask questions in natural language — staffing, churn, or portfolio — and get answers from your venue data. Optional; runs locally or in the cloud.
+              </p>
+            </div>
+          </div>
+          <div className="mt-14 text-center">
+            <Link
+              href="/launch"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition"
+            >
+              See Venue Intelligence
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <BannerColumnsPreview />
+
+      <VenueMockupsSection venues={mockVenues} />
 
       <section className="relative bg-slate-950 text-white py-32 overflow-hidden" id="how-it-works">
         {/* Top Fade From Hero */}

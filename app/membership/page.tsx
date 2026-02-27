@@ -2,11 +2,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { MembershipPass } from "@/components/membership/MembershipPass";
-import { MembershipViewMockupsLeft } from "@/components/membership/MembershipViewMockups";
-import { MembershipViewMockupsRight } from "@/components/membership/MembershipViewMockups";
 import { StartDemoButton } from "@/components/demo/StartDemoButton";
 import { HomeVenueChooser } from "@/components/home/HomeVenueChooser";
-import { CURRENT_VENUE_COOKIE, getFallbackVenues } from "@/lib/constants";
+import { CURRENT_VENUE_COOKIE, getFallbackVenues, isMockVenueSlug, getMockThemeClass } from "@/lib/constants";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { onlyPilotVenues, withDisplayNames, venueDisplayName } from "@/lib/venues";
 
@@ -35,9 +33,9 @@ export default async function MembershipPage({
   // Fetch memberships without join (avoids join/RLS issues). Select only columns that exist in all schemas (id, venue_id, status); tier/expires_at may be missing.
   const { data: rawMemberships } = await supabase
     .from('memberships')
-    .select('id, venue_id, status')
+    .select('id, venue_id, status, created_at, expires_at, tier')
     .eq('user_id', user.id);
-  type Row = { id: string; venue_id: string; expires_at?: string | null; tier?: string | null; status?: string; venues?: { id: string; name: string; slug: string } | null };
+  type Row = { id: string; venue_id: string; expires_at?: string | null; tier?: string | null; status?: string; created_at?: string | null; venues?: { id: string; name: string; slug: string } | null };
   const rows = ((rawMemberships ?? []) as Row[]).filter((m) => (m.status ?? 'active') === 'active');
   const venueIds = [...new Set(rows.map((r) => r.venue_id))];
   const { data: venueRows } = venueIds.length > 0
@@ -54,26 +52,26 @@ export default async function MembershipPage({
   const firstWithVenue = withVenue[0];
   const firstAny = rowsWithVenue[0];
 
-  let membership: { id: string; venue_id: string; expires_at: string | null; tier: string | null } | null = null
+  let membership: { id: string; venue_id: string; expires_at: string | null; tier: string | null; created_at: string | null } | null = null
   let venueName = 'Venue'
   let usedFallbackVenue = false
 
   if (slugForDisplay && withVenue.length > 0) {
     const match = withVenue.find((m) => m.venues!.slug === slugForDisplay)
     if (match) {
-      membership = { id: match.id, venue_id: match.venue_id, expires_at: match.expires_at ?? null, tier: match.tier ?? 'Member' }
+      membership = { id: match.id, venue_id: match.venue_id, expires_at: match.expires_at ?? null, tier: match.tier ?? 'Member', created_at: match.created_at ?? null }
       venueName = match.venues!.name
     } else {
-      membership = { id: firstWithVenue.id, venue_id: firstWithVenue.venue_id, expires_at: firstWithVenue.expires_at ?? null, tier: firstWithVenue.tier ?? 'Member' }
+      membership = { id: firstWithVenue.id, venue_id: firstWithVenue.venue_id, expires_at: firstWithVenue.expires_at ?? null, tier: firstWithVenue.tier ?? 'Member', created_at: firstWithVenue.created_at ?? null }
       venueName = firstWithVenue.venues!.name
       usedFallbackVenue = true
     }
   } else if (firstWithVenue) {
-    membership = { id: firstWithVenue.id, venue_id: firstWithVenue.venue_id, expires_at: firstWithVenue.expires_at ?? null, tier: firstWithVenue.tier ?? 'Member' }
+    membership = { id: firstWithVenue.id, venue_id: firstWithVenue.venue_id, expires_at: firstWithVenue.expires_at ?? null, tier: firstWithVenue.tier ?? 'Member', created_at: firstWithVenue.created_at ?? null }
     venueName = firstWithVenue.venues!.name
   } else if (firstAny) {
     const { data: ven } = await supabase.from('venues').select('name').eq('id', firstAny.venue_id).maybeSingle()
-    membership = { id: firstAny.id, venue_id: firstAny.venue_id, expires_at: firstAny.expires_at ?? null, tier: firstAny.tier ?? 'Member' }
+    membership = { id: firstAny.id, venue_id: firstAny.venue_id, expires_at: firstAny.expires_at ?? null, tier: firstAny.tier ?? 'Member', created_at: firstAny.created_at ?? null }
     venueName = ven?.name ?? 'Venue'
   } else if (slugForDisplay) {
     venueName = venueDisplayName(slugForDisplay, 'Venue')
@@ -86,13 +84,13 @@ export default async function MembershipPage({
     if (venueRow?.id) {
       const { data: m } = await supabase
         .from('memberships')
-        .select('id, venue_id')
+        .select('id, venue_id, created_at')
         .eq('user_id', user.id)
         .eq('venue_id', venueRow.id)
         .eq('status', 'active')
         .maybeSingle()
       if (m) {
-        membership = { id: m.id, venue_id: m.venue_id, expires_at: null, tier: 'founder' }
+        membership = { id: m.id, venue_id: m.venue_id, expires_at: null, tier: 'founder', created_at: (m as { created_at?: string }).created_at ?? null }
         venueName = (venueRow as { name?: string }).name ?? venueName
         found = true
       }
@@ -100,16 +98,16 @@ export default async function MembershipPage({
     if (!found) {
       const { data: userMemberships } = await supabase
         .from('memberships')
-        .select('id, venue_id, status')
+        .select('id, venue_id, status, created_at')
         .eq('user_id', user.id)
-      const list = (userMemberships ?? []).filter((row: { status?: string }) => (row.status ?? 'active') === 'active') as { id: string; venue_id: string }[]
+      const list = (userMemberships ?? []).filter((row: { status?: string }) => (row.status ?? 'active') === 'active') as { id: string; venue_id: string; created_at?: string | null }[]
       const venueIds = [...new Set(list.map((r) => r.venue_id))]
       if (venueIds.length > 0) {
         const { data: venues } = await supabase.from('venues').select('id, name, slug').in('id', venueIds)
         const bySlug = (venues ?? []).find((v: { slug?: string }) => (v.slug ?? '').toLowerCase() === (slugForDisplay ?? '').toLowerCase())
         const match = list.find((r) => r.venue_id === bySlug?.id)
         if (bySlug && match) {
-          membership = { id: match.id, venue_id: match.venue_id, expires_at: null, tier: 'founder' }
+          membership = { id: match.id, venue_id: match.venue_id, expires_at: null, tier: 'founder', created_at: match.created_at ?? null }
           venueName = (bySlug as { name?: string }).name ?? venueName
         }
       }
@@ -134,6 +132,11 @@ export default async function MembershipPage({
   const expiresAt =
     membership?.expires_at && !Number.isNaN(Date.parse(membership.expires_at))
       ? new Date(membership.expires_at).toLocaleDateString(undefined, { dateStyle: 'medium' })
+      : null
+
+  const memberSinceFormatted =
+    membership?.created_at && !Number.isNaN(Date.parse(membership.created_at))
+      ? new Date(membership.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
       : null
 
   const tierKey = (membership?.tier ?? '').toLowerCase()
@@ -181,12 +184,14 @@ export default async function MembershipPage({
   const effectiveSlug = slugForDisplay ?? (venueName === 'The Function SF' ? 'the-function-sf' : venueName === 'The Starry Plough' ? 'the-starry-plough' : null)
   const isFunctionSF = venueName === 'The Function SF' || effectiveSlug === 'the-function-sf'
   const isStarryPlough = venueName === 'The Starry Plough' || effectiveSlug === 'the-starry-plough'
+  const isMockVenue = slugForDisplay != null && isMockVenueSlug(slugForDisplay)
+  const mockThemeClass = isMockVenue ? getMockThemeClass(slugForDisplay, true) : ''
   const _displayTier = isActive ? (membership?.tier ?? 'Member') : 'Member';
   void _displayTier;
   return (
     <main
-      className={`venue-theme min-h-screen flex flex-col md:flex-row ${isFunctionSF ? 'venue-blurred-stage' : ''} ${isStarryPlough ? 'venue-theme-starry-plough venue-blurred-pub' : ''}`}
-      style={{ color: 'var(--venue-text)', ...(isFunctionSF || isStarryPlough ? {} : { backgroundColor: 'var(--venue-bg)' }) }}
+      className={`venue-theme min-h-screen flex flex-col md:flex-row ${isFunctionSF ? 'venue-blurred-stage' : ''} ${isStarryPlough ? 'venue-theme-starry-plough venue-blurred-pub' : ''} ${mockThemeClass}`}
+      style={{ color: 'var(--venue-text)', ...(isFunctionSF || isStarryPlough || isMockVenue ? {} : { backgroundColor: 'var(--venue-bg)' }) }}
     >
       {/* Left sidebar: venue chooser + nav (md+ only as sidebar; on mobile stays in flow) */}
       <aside className="flex-shrink-0 border-b md:border-b-0 md:border-r border-white/10 p-4 md:p-5 md:min-w-[200px] flex flex-row md:flex-col items-center md:items-stretch gap-4 md:gap-5" style={{ backgroundColor: 'var(--venue-sidebar-bg)' }}>
@@ -212,25 +217,31 @@ export default async function MembershipPage({
         </nav>
       </aside>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 min-h-0">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 min-h-0 w-full max-w-lg mx-auto">
         <div className="w-full max-w-sm flex flex-col items-center mb-4">
           <StartDemoButton />
         </div>
-        {/* Unified pass view: one panel connecting QR | data | wallet */}
-        <div className="w-full flex-1 flex flex-col md:max-w-5xl rounded-2xl border border-white/15 overflow-hidden shadow-2xl" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+        {/* Single-card hierarchy: primary = pass (QR + code + tier + status), secondary = metadata, tertiary = wallet */}
+        <div className="w-full flex-1 flex flex-col rounded-2xl border border-white/15 overflow-hidden shadow-2xl" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
           <div className="px-4 py-3 border-b border-white/10 flex items-center justify-center md:justify-start" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
             <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--venue-text-muted)' }}>
               Your pass · {venueName}
             </h2>
           </div>
-          <div className="flex flex-col md:flex-row md:items-stretch flex-1">
-          <div className="hidden md:flex md:min-w-[200px] md:max-w-[240px] flex-col items-center justify-center gap-3 px-6 py-6 border-r border-white/10">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 self-start">Scan at door</p>
-            <MembershipViewMockupsLeft venueName={venueName} />
-          </div>
-          <div className="w-full max-w-sm md:max-w-none md:flex-1 flex flex-col justify-center px-6 py-6 md:py-8 md:min-w-0">
-        {/* Venue data first — most important for each venue */}
-        <section className="w-full rounded-xl border border-white/10 overflow-hidden mb-6" style={{ backgroundColor: 'var(--venue-bg-elevated)' }}>
+          <div className="flex flex-col flex-1 p-4 md:p-6">
+        {/* Primary: one pass card — show at door */}
+        {isActive ? (
+          <>
+            <MembershipPass
+              userId={user.id}
+              venueName={venueName}
+              tierName={membership?.tier ?? 'Member'}
+              status="active"
+              memberSince={memberSinceFormatted}
+              expiresAt={expiresAt}
+            />
+        {/* Secondary: metadata below fold */}
+        <section className="w-full rounded-xl border border-white/10 overflow-hidden mt-6" style={{ backgroundColor: 'var(--venue-bg-elevated)' }} aria-label="Membership details">
           <div className="px-4 py-3 border-b border-white/10">
             <h2 className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--venue-accent)' }}>
               Membership at this venue
@@ -257,19 +268,8 @@ export default async function MembershipPage({
             )}
           </dl>
         </section>
-
-        {isActive ? (
-          <>
-            <MembershipPass
-              userId={user.id}
-              venueName={venueName}
-              tierName={membership?.tier ?? 'Member'}
-              status="active"
-              memberSince={null}
-              expiresAt={expiresAt}
-            />
-            {isActive && rewards.length > 0 && (
-              <section className="w-full max-w-sm mx-auto mt-6 rounded-xl border border-white/10 overflow-hidden" style={{ backgroundColor: 'var(--venue-bg-elevated)' }}>
+            {rewards.length > 0 && (
+              <section className="w-full max-w-sm mx-auto mt-6 rounded-xl border border-white/10 overflow-hidden" style={{ backgroundColor: 'var(--venue-bg-elevated)' }} aria-label="Tier rewards">
                 <div className="px-4 py-3 border-b border-white/10">
                   <h2 className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--venue-accent)' }}>
                     Your rewards
@@ -290,18 +290,19 @@ export default async function MembershipPage({
                 </ul>
               </section>
             )}
+            {/* Tertiary: wallet actions */}
             {membership?.venue_id && (
-              <section className="w-full max-w-sm mx-auto mt-6">
+              <section className="w-full max-w-sm mx-auto mt-6" aria-label="Wallet access">
                 <h2
                   className="text-sm font-medium uppercase tracking-wide mb-3"
                   style={{ color: 'var(--venue-text-muted)' }}
                 >
-                  Wallet Access
+                  Add to wallet
                 </h2>
                 <div className="flex flex-col gap-2">
                   <a
                     href={`/api/wallet/apple?membership_id=${encodeURIComponent(membership.id)}&venue_id=${encodeURIComponent(membership.venue_id)}`}
-                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
+                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
                     style={{
                       borderColor: 'var(--venue-text-muted)',
                       color: 'var(--venue-text)',
@@ -312,7 +313,7 @@ export default async function MembershipPage({
                   </a>
                   <a
                     href={`/api/wallet/google?membership_id=${encodeURIComponent(membership.id)}&venue_id=${encodeURIComponent(membership.venue_id)}`}
-                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
+                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
                     style={{
                       borderColor: 'var(--venue-text-muted)',
                       color: 'var(--venue-text)',
@@ -324,17 +325,6 @@ export default async function MembershipPage({
                   <p className="text-xs mt-2" style={{ color: 'var(--venue-text-muted)' }}>
                     Wallet passes expire every 14 days for security.
                   </p>
-                  <a
-                    href={`/api/wallet/apple?membership_id=${encodeURIComponent(membership.id)}&venue_id=${encodeURIComponent(membership.venue_id)}`}
-                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)]"
-                    style={{
-                      borderColor: 'var(--venue-text-muted)',
-                      color: 'var(--venue-text)',
-                      backgroundColor: 'rgba(255,255,255,0.05)',
-                    }}
-                  >
-                    Refresh Wallet Pass
-                  </a>
                 </div>
               </section>
             )}
@@ -361,11 +351,6 @@ export default async function MembershipPage({
           </div>
         )}
         </div>
-          <div className="hidden md:flex md:min-w-[280px] md:max-w-[320px] flex-col items-center justify-center gap-3 px-6 py-6 border-l border-white/10">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 self-start">Wallet pass</p>
-            <MembershipViewMockupsRight venueName={venueName} tierName={displayTierForCard ?? 'Founder'} venueSlug={effectiveSlug} isActive={true} />
-          </div>
-          </div>
         </div>
       </div>
     </main>

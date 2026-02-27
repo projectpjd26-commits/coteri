@@ -139,6 +139,7 @@ export function MembershipPass({
               <span className="text-2xl mb-2 opacity-70" aria-hidden>🔒</span>
             )}
             {qrDataUrl && isActive ? (
+              // eslint-disable-next-line @next/next/no-img-element -- QR is a data URL; next/image does not support data URLs
               <img src={qrDataUrl} alt="Verification QR code" className="w-28 h-28 object-contain" />
             ) : (
               <span className="text-sm text-slate-500">{isActive ? 'Loading…' : 'Renew to reactivate'}</span>
@@ -150,14 +151,21 @@ export function MembershipPass({
             <span className={`text-[10px] font-semibold uppercase ${isActive ? 'venue-badge-glow' : ''}`} style={isActive ? { color: 'var(--venue-success)' } : { color: 'var(--venue-text-muted)' }}>{isActive ? 'Active' : 'Inactive'}</span>
           </div>
           {isActive && (
-            <button
-              type="button"
-              onClick={copyLink}
-              className={`mt-3 w-full min-h-[44px] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)] ${highlightCopyLink ? 'demo-highlight-ring demo-arrow-hint' : ''}`}
-              style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'var(--venue-text)' }}
-            >
-              {copySuccess ? 'Copied!' : 'Copy verification link'}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={copyLink}
+                className={`mt-3 w-full min-h-[44px] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--venue-accent)] focus:ring-offset-2 focus:ring-offset-[var(--venue-bg)] ${highlightCopyLink ? 'demo-highlight-ring demo-arrow-hint' : ''}`}
+                style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'var(--venue-text)' }}
+                aria-label={copySuccess ? 'Copied verification link' : 'Copy verification link'}
+              >
+                {copySuccess ? 'Copied!' : 'Copy verification link'}
+              </button>
+              {/* Screen reader announcement: explicit "Copied verification link" per V2 §4 */}
+              <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                {copySuccess ? 'Copied verification link' : ''}
+              </div>
+            </>
           )}
           {!isActive && (
             <p className="mt-2 text-center text-sm" style={{ color: 'var(--venue-accent)' }}>Renew to reactivate access</p>
@@ -182,6 +190,7 @@ export function MembershipPass({
             Close
           </button>
           {qrDataUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- QR is a data URL; next/image does not support data URLs
             <img
               src={qrDataUrl}
               alt="Verification QR code"

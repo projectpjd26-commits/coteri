@@ -7,9 +7,9 @@ export function HeroPreview() {
         {/* Subtle Edge Glow */}
         <div className="absolute inset-0 rounded-2xl ring-1 ring-indigo-500/20 pointer-events-none" aria-hidden />
 
-        <div className="px-6 py-5 border-b border-slate-700/80 flex justify-between items-center">
-          <span className="text-slate-100 font-semibold tracking-tight text-lg">LIVE DASHBOARD</span>
-          <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 tracking-wide">
+        <div className="px-6 py-5 border-b border-slate-700/80 flex justify-between items-center bg-slate-900/95">
+          <span className="text-white font-semibold tracking-tight text-lg">LIVE DASHBOARD</span>
+          <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-green-500/25 text-green-300 border border-green-500/40 tracking-wide">
             LIVE
           </span>
         </div>
@@ -17,26 +17,26 @@ export function HeroPreview() {
         <div className="p-6 overflow-x-auto">
           <table className="w-full text-left min-w-[640px]">
             <thead>
-              <tr className="border-b border-slate-700/80">
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <tr className="border-b border-slate-700/80 bg-slate-800/60">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Member
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Tier
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Status
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Reward
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Points
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Revenue
                 </th>
-                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <th className="pb-4 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Last Verified
                 </th>
               </tr>

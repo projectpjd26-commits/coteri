@@ -2,7 +2,7 @@
 
 ## TL;DR (push & redeploy)
 
-1. **From project root** (e.g. `cd /Users/pboek/coteri` or open integrated terminal in Cursor).
+1. **From project root** (e.g. `cd /Users/pboek/Cursor Codex Projects/coteri` or open integrated terminal in Cursor).
 2. **Stage & commit:**  
    `git add package.json package-lock.json` (or `git add .`)  
    `git commit -m "Deploy: add type module, update deps"`
@@ -12,13 +12,20 @@
 4. **Vercel** auto-redeploys. Check **Vercel → Deployments** for Building → Ready.
 5. **Test:**  
    `https://<your-vercel-app>.vercel.app`  
-   e.g. `https://<your-vercel-app>.vercel.app/membership?venue=the-function-sf`
+   e.g. `https://<your-vercel-app>.vercel.app/membership?venue=the-function-sf`  
+   Venue Intelligence: `https://<your-vercel-app>.vercel.app/dashboard/venue/metrics` (old `/venue/metrics` redirects there with query preserved).
 
 **If push fails:**  
 - `fatal: not a git repo` → run from project root.  
 - `permission denied` → re-auth GitHub (Vercel/Git).  
 - `no upstream branch` → `git push -u origin main`.  
 - Merge conflicts → resolve, commit, then push.
+
+**Production branch:** In Vercel → **Settings → Git**, set **Production Branch** to `main` so the production domain serves the latest deploy from `main`. Previews can use other branches.
+
+**Middleware (Next.js):** Next.js may show a deprecation warning for the `middleware` file convention in favor of `proxy`. The app currently uses root `middleware.ts` for Supabase session refresh; when the proxy migration path is stable, migrate per Next.js docs. **Tracked in:** `docs/TODO.md` (item 81), `docs/SYSTEMS-AUGMENTATIONS.md`.
+
+**Branch protection (recommended):** In GitHub → **Settings → Branches**, add a rule for `main` with **Require status checks to pass before merging**. Select the status check named **CI** (or **check** — the job in `.github/workflows/ci.yml`). That way only passing builds can be merged.
 
 ---
 
@@ -56,6 +63,20 @@ In **Supabase Dashboard** → **Authentication** → **URL Configuration**:
   - Keep `http://localhost:3000/auth/callback` for local dev
 
 Use your real Vercel URL (with or without custom domain).
+
+## 5a. Smoke test after deploy or auth/config change
+
+After changing **NEXT_PUBLIC_SITE_URL** or Supabase redirect URLs:
+
+1. **Sign in** — Confirm redirect goes to the intended path (e.g. `/launch` or `/dashboard`), not a wrong host.
+2. **Log out** — Confirm redirect goes to your site home (e.g. `https://your-app.vercel.app/`).
+3. **Magic link** — Trigger a magic-link sign-in and confirm the callback URL in the email is correct (e.g. `.../auth/callback?code=...`).
+4. **Staff verify (pilot)** — Sign in as a user with venue staff (e.g. venue owner): open **Dashboard** → click **Verify** in the sidebar → confirm the verify page loads and does not redirect away. Ensures staff can reach the door verification screen from the app. See `docs/PRE-PRODUCTION-CHECKLIST.md` §7.
+5. **Venue Intelligence redirect** — Open `/venue/metrics` (and optionally `?venue=<slug>`); confirm redirect to `/dashboard/venue/metrics` with the same query. Ensures sidebar and canonical route work.
+
+If any redirect points to the wrong domain, fix `NEXT_PUBLIC_SITE_URL` and Supabase Auth URL configuration, then redeploy.
+
+**Before production:** Run through **`docs/AUDIT-PHASE-3-IMPLEMENTATION.md`** (verify flow, IS_DEMO_MODE, demo redirect).
 
 ## 5. Share the link
 

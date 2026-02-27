@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_NEXT_COOKIE } from "@/lib/constants";
 
-/** Same origin resolution as set-venue: supports proxy (x-forwarded-host). */
+/** Same origin resolution as set-venue: supports proxy (x-forwarded-host).
+ * When NEXT_PUBLIC_SITE_URL is set, redirect origin is canonical (not from request headers), avoiding open-redirect via spoofed Host. */
 function getOrigin(request: Request): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  }
   const host = request.headers.get("x-forwarded-host");
   if (host) {
     const proto = request.headers.get("x-forwarded-proto") ?? "https";

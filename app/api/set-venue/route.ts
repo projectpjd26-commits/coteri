@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { CURRENT_VENUE_COOKIE, VENUE_SLUG_REGEX, VENUE_SLUG_MAX_LENGTH } from "@/lib/constants";
+import { CURRENT_VENUE_COOKIE, VENUE_SLUG_REGEX, VENUE_SLUG_MAX_LENGTH, PILOT_VENUE_SLUGS, getFallbackVenues } from "@/lib/constants";
 import { allowedVenueSlugs, isDashboardAdmin } from "@/lib/dashboard-auth";
 import { createServerSupabase } from "@/lib/supabase-server";
 
@@ -34,11 +34,21 @@ async function getAllowedSlugs(cookieStore: Awaited<ReturnType<typeof cookies>>)
   const fromStaff = (staffVenues ?? [])
     .map((s) => (s as unknown as { venues: VenueRow | null }).venues)
     .filter((v): v is VenueRow => v != null && (!v.is_demo || isAdmin));
-  return allowedVenueSlugs({
+  const slugs = allowedVenueSlugs({
     isAdmin,
     fromMemberships: fromMemberships.map((v) => ({ id: v.id, slug: v.slug, name: v.name })),
     fromStaff: fromStaff.map((v) => ({ id: v.id, slug: v.slug, name: v.name })),
   });
+  // Admin with no venues: allow pilot slugs so they can set a venue and access dashboard.
+  // Admin: always allow all fallback (mock) venue slugs so they can use all 8 everywhere (launcher, dashboard switcher).
+  if (isAdmin) {
+    getFallbackVenues().forEach((v) => slugs.add(v.slug));
+    if (slugs.size === 0) {
+      const { data: rows } = await supabase.from("venues").select("slug").in("slug", [...PILOT_VENUE_SLUGS]);
+      rows?.forEach((r) => slugs.add(r.slug));
+    }
+  }
+  return slugs;
 }
 
 /**

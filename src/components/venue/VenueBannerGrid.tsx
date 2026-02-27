@@ -37,6 +37,13 @@ function VenueBannerCard({
         >
           {v.name}
         </span>
+        {v.description && (
+          <span
+            className={`text-white/90 drop-shadow line-clamp-2 mt-0.5 ${narrow ? "text-[10px]" : "text-xs sm:text-sm"}`}
+          >
+            {v.description}
+          </span>
+        )}
       </span>
     </a>
   );

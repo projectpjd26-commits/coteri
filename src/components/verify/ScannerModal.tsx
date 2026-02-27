@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Alert } from '@/components/ui/Alert'
 import { extractUserIdFromInput } from '@/lib/verify-utils'
 
 const SCANNER_CONTAINER_ID = 'verify-qr-scanner'
@@ -135,7 +136,9 @@ export function ScannerModal({ open, onClose, onScan, onCameraDenied }: ScannerM
 
       {(status === 'denied' || status === 'error') && (
         <div className="max-w-sm text-center">
-          <p className="mb-4 text-lg font-medium text-red-400">{errorMessage}</p>
+          <Alert variant="error" className="mb-4 text-left">
+            {errorMessage}
+          </Alert>
           <p className="mb-6 text-sm text-gray-400">
             Use the paste or access code field on the main screen instead.
           </p>

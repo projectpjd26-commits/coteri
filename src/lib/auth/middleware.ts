@@ -32,7 +32,8 @@ export interface AuthResult {
  * Require authentication for an API route
  * Returns user and session if authenticated, or error response if not
  */
-export async function requireAuth(request: Request): Promise<AuthResult> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- request kept for API signature consistency
+export async function requireAuth(_request: Request): Promise<AuthResult> {
   const supabase = await createClient();
 
   const {
@@ -62,10 +63,10 @@ export async function requireAuth(request: Request): Promise<AuthResult> {
  * Useful for venue-specific endpoints
  */
 export async function requireVenueAccess(
-  request: Request,
+  _request: Request,
   venueId: string
 ): Promise<AuthResult> {
-  const authResult = await requireAuth(request);
+  const authResult = await requireAuth(_request);
   if (authResult.error) return authResult;
 
   const supabase = await createClient();
@@ -97,7 +98,8 @@ export async function requireVenueAccess(
  * Useful for endpoints that behave differently for authenticated vs anonymous users
  */
 export async function optionalAuth(
-  request: Request
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- request kept for API signature consistency
+  _request: Request
 ): Promise<{ user: User | null; session: Session | null }> {
   const supabase = await createClient();
 
@@ -116,10 +118,10 @@ export async function optionalAuth(
  * (Requires roles table - add if needed)
  */
 export async function requireVenueStaff(
-  request: Request,
+  _request: Request,
   venueId: string
 ): Promise<AuthResult> {
-  const authResult = await requireAuth(request);
+  const authResult = await requireAuth(_request);
   if (authResult.error) return authResult;
 
   const supabase = await createClient();

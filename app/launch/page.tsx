@@ -5,7 +5,7 @@ import { CURRENT_VENUE_COOKIE, getFallbackVenues } from "@/lib/constants";
 import { allowedVenuesForUser, getRoleForUser, isDashboardAdmin } from "@/lib/dashboard-auth";
 import { getVenuesWithBanners } from "@/lib/venue-banners";
 import { createServerSupabase } from "@/lib/supabase-server";
-import { onlyPilotVenues, withDisplayNames } from "@/lib/venues";
+import { onlyPilotVenues, withDisplayNames, getPilotVenueOptionsFromDb } from "@/lib/venues";
 import { VenueBannerGrid } from "@/components/venue/VenueBannerGrid";
 
 export const dynamic = "force-dynamic";
@@ -44,11 +44,18 @@ export default async function LaunchPage() {
     fromMemberships: fromMemberships.map((v) => ({ id: v.id, slug: v.slug, name: v.name })),
     fromStaff: fromStaff.map((v) => ({ id: v.id, slug: v.slug, name: v.name })),
   });
-  const allVenues = withDisplayNames(allowedOptions.map((v) => ({ slug: v.slug, name: v.name })));
+  const resolvedOptions =
+    isAdmin && allowedOptions.length === 0
+      ? await getPilotVenueOptionsFromDb(supabase as never)
+      : allowedOptions;
+  // Use full fallback venue list for launcher so the same mock venues appear everywhere (splash, launcher, etc.).
+  const allVenues = withDisplayNames(resolvedOptions.map((v) => ({ slug: v.slug, name: v.name })));
   let venues = onlyPilotVenues(allVenues);
   if (venues.length === 0) {
     venues = getFallbackVenues();
   }
+  // Launcher grid always shows the same mock/fallback set as splash and rest of site.
+  const launcherVenues = getFallbackVenues();
 
   // Non-admin with exactly one venue: send straight to their dashboard (no launcher)
   if (!isAdmin && venues.length === 1) {
@@ -60,11 +67,11 @@ export default async function LaunchPage() {
   const rawSlug = cookieStore.get(CURRENT_VENUE_COOKIE)?.value ?? null;
   const currentSlug = rawSlug?.trim() || null;
   const role = getRoleForUser(user, (staffVenues?.length ?? 0) > 0);
-  const firstVenue = venues[0];
-  const currentVenueRecord = currentSlug ? venues.find((v) => v.slug === currentSlug) : firstVenue ?? null;
+  const firstVenue = launcherVenues[0];
+  const currentVenueRecord = currentSlug ? launcherVenues.find((v) => v.slug === currentSlug) : firstVenue ?? null;
   const displayVenue = currentVenueRecord ?? firstVenue;
 
-  const venuesWithBanners = getVenuesWithBanners(venues);
+  const venuesWithBanners = getVenuesWithBanners(launcherVenues);
   const currentVenueBanner =
     currentVenueRecord != null
       ? venuesWithBanners.find((v) => v.slug === currentVenueRecord.slug) ?? null
@@ -75,9 +82,14 @@ export default async function LaunchPage() {
       {/* Banner-style venue launcher with themed images */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
         <div className="max-w-5xl mx-auto px-6 py-10">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white text-center mb-2">
-            COTERI
-          </h1>
+          <Link
+            href="/"
+            className="block text-center focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 rounded"
+          >
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
+              COTERI
+            </h1>
+          </Link>
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">
             Choose a venue to open its dashboard.
           </p>

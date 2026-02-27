@@ -42,6 +42,10 @@
 | Home layout: venues from DB or `FALLBACK_VENUES` | ✓ | |
 | Dashboard/membership: current venue from cookie; display names from `venueDisplayName` / `withDisplayNames` | ✓ | |
 | Pilot slugs / fallback list | ✓ | `PILOT_VENUE_SLUGS`, `FALLBACK_VENUES` in constants; demo-grant and internal demo use `PILOT_VENUE_SLUGS[0]` |
+| **Mock venue themes (marketing)** | ✓ | `MOCK_VENUE_SLUGS`, `getMockThemeClass(slug, forPage)`, `MOCK_VENUE_DESCRIPTORS` in constants; CSS `.venue-theme-{slug}`, `.venue-blurred-mock` / `.venue-blurred-mock-page` in `app/globals.css`; splash section `VenueMockupsSection`; dashboard/membership apply theme when cookie/slug is a mock slug |
+| **Admin: all 8 fallback venues** | ✓ | Launcher and dashboard venue switcher use `getFallbackVenues()` for admins (same 8 as splash). set-venue allows all fallback slugs for admin (`getAllowedSlugs`). Dashboard layout builds `resolvedOptions` from fallback, merging real ids where admin is staff. |
+
+**Adding a mock venue:** (1) Append slug to `MOCK_VENUE_SLUGS` in `src/lib/constants.ts`, (2) add row to `FALLBACK_VENUES_LIST`, (3) add entry to `MOCK_VENUE_DESCRIPTORS`, (4) add `.venue-theme-{slug}` and `--venue-mock-bg-image` in `app/globals.css`, (5) add banner in `src/lib/venue-banners.ts` `VENUE_BANNER_IMAGES`. Optional: add card to `BannerColumnsPreview` `MOCK_VENUES` with matching `slug`.
 
 ---
 
@@ -66,6 +70,7 @@
 | Verify: Server Action uses writable Supabase; page uses readOnly | ✓ | |
 | Verify: valid result tier | ✓ | `membership.tier ?? "Member"` so null tier does not show "null" |
 | Verify: staff record from `venue_staff` with `.limit(1)`; membership with `.maybeSingle()` | ✓ | No `.single()` that can throw |
+| **Dashboard “Your activity”** | ✓ | 12 tiles: Your tier, Status, Member since, Total visits, Visits today/week/month, Last visit, Drinks today/week, Rewards used today, First visit. Member-facing labels. Optional `title` on Your tier, Status, Member since, Total visits, Rewards used today. |
 
 ---
 
@@ -119,7 +124,7 @@
 |------|--------|------|
 | **Views** | ✓ | `venue_daily_scans`, `venue_tier_usage`, `member_visit_frequency`, `membership_lifetime_visits`, `venue_daily_hourly_scans` (migrations 2025021116*, 2025021117*) |
 | **Realtime** | ✓ | `verification_events` in `supabase_realtime` publication; `LiveVerificationCount` subscribes to INSERTs for venue |
-| **Venue Intelligence page** | ✓ | `/venue/metrics` — rebranded; manager/owner only; today live, 24h, tier usage, peak hours + heatmap, 7d daily, staff |
+| **Venue Intelligence page** | ✓ | `/dashboard/venue/metrics` (redirect from `/venue/metrics`) — rebranded; manager/owner only; today live, 24h, tier usage, peak hours + heatmap, 7d daily, staff |
 | **Heatmap** | ✓ | `ScanHeatmap` uses `venue_daily_hourly_scans` (day, hour, total_scans); peak hours + day×hour grid (UTC) |
 | **Graceful fallback** | ✓ | All view queries in try/catch; missing views → empty data, no crash |
 
@@ -129,13 +134,13 @@
 
 - `npm run build` — all routes compile; no TypeScript errors.
 - `npx tsc --noEmit` — passes.
-- Routes: `/`, `/sign-in`, `/dashboard`, `/membership`, `/join`, `/admin`, `/internal/demo`, `/verify`, `/venue/metrics`, `/auth/callback`, `/auth/logout`, `/api/set-venue`, `/api/internal/demo-grant-membership`, `/api/internal/demo-reset`, `/api/wallet/apple`, `/api/wallet/google`, `/api/stripe/webhook`.
-- **Lint:** `next lint` may fail with “Invalid project directory” (Next.js 16 / eslint-config-next). Use `npx eslint app src --ignore-pattern 'src/app-legacy/**'` to lint active app.
+- Routes: `/`, `/sign-in`, `/dashboard`, `/membership`, `/join`, `/admin`, `/internal/demo`, `/verify`, `/dashboard/venue/metrics` (redirect: `/venue/metrics`), `/auth/callback`, `/auth/logout`, `/api/set-venue`, `/api/internal/demo-grant-membership`, `/api/internal/demo-reset`, `/api/wallet/apple`, `/api/wallet/google`, `/api/stripe/webhook`.
+- **Lint:** `next lint` may fail with “Invalid project directory” (Next.js 16 / eslint-config-next). Use `npx eslint app src` to lint active app (legacy `src/app-legacy/` was removed).
 
 ---
 
 ## 12. System debug (Feb 2025)
 
-Full review after splash, Venue Intelligence, and heatmap: **Build** ✓ | **TypeScript** ✓ | **Auth default** doc fixed to `/launch` | **Lint** setState-in-effect and unused-vars fixed in active app; legacy code in `src/app-legacy/` excluded from strict lint.
+Full review after splash, Venue Intelligence, and heatmap: **Build** ✓ | **TypeScript** ✓ | **Auth default** doc fixed to `/launch` | **Lint** setState-in-effect and unused-vars fixed in active app; legacy `src/app-legacy/` was removed.
 
 *Last updated: full system review + Venue Intelligence + debug Feb 2025.*

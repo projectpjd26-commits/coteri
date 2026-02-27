@@ -58,6 +58,10 @@ A Next.js membership platform with Supabase authentication, Stripe payments, and
 
 Deploy to Vercel (or use the Vercel GitHub integration for automatic deployments). See `docs/DEPLOY.md` for env vars and Supabase redirect URL setup.
 
+**Before production:** See [docs/PRE-PRODUCTION-CHECKLIST.md](docs/PRE-PRODUCTION-CHECKLIST.md) for a consolidated checklist (admins, migrations, auth, audit, Stripe/QR if used). For CSV/positions, use [docs/MIGRATIONS-CSV-CHECKLIST.md](docs/MIGRATIONS-CSV-CHECKLIST.md) to tick off migrations per env.
+
+**Contributing:** See [CONTRIBUTING.md](CONTRIBUTING.md) for PR checklist (build, lint, RUNBOOK updates). Version history: [CHANGELOG.md](CHANGELOG.md). Optional/future work: [docs/FUTURE-BACKLOG.md](docs/FUTURE-BACKLOG.md).
+
 ## License
 
 MIT

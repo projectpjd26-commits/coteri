@@ -41,6 +41,7 @@ type Props = {
 export function VerifyForm({ initialResult, venueName, staffRole, verifyAction }: Props) {
   const [result, setResult] = useState<VerifyApiResult | null>(initialResult);
   const [minDisplayMet, setMinDisplayMet] = useState(false);
+  const [highBrightness, setHighBrightness] = useState(false);
   const [state, formAction, isPending] = useActionState(verifyAction, null);
 
   useEffect(() => {
@@ -65,14 +66,23 @@ export function VerifyForm({ initialResult, venueName, staffRole, verifyAction }
   const tierLabel = result?.tier ? `${result.tier.charAt(0).toUpperCase()}${result.tier.slice(1)} Member` : null;
 
   return (
-    <>
+    <div className={highBrightness ? "verify-high-brightness min-h-screen flex flex-col" : "min-h-screen flex flex-col"}>
       {/* Minimal header: venue + role, no nav */}
-      <header className="flex-shrink-0 px-4 py-3 border-b border-neutral-800">
+      <header className="flex-shrink-0 px-4 py-3 border-b border-neutral-800 flex items-center justify-between">
         <p className="text-sm text-neutral-400">
           <span className="text-neutral-300">{venueName}</span>
           <span className="mx-2" aria-hidden>·</span>
           <span>{staffRole}</span>
         </p>
+        <button
+          type="button"
+          onClick={() => setHighBrightness((v) => !v)}
+          className="text-xs font-medium px-2 py-1.5 rounded border border-current opacity-80 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-1"
+          aria-pressed={highBrightness}
+          aria-label={highBrightness ? "Switch to normal brightness" : "Switch to high brightness for bright environments"}
+        >
+          {highBrightness ? "Normal" : "Bright"}
+        </button>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
@@ -170,6 +180,6 @@ export function VerifyForm({ initialResult, venueName, staffRole, verifyAction }
           </>
         )}
       </main>
-    </>
+    </div>
   );
 }

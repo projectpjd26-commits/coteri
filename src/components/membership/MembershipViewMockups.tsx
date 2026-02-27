@@ -3,7 +3,7 @@
 import { MockQRCode } from "@/components/demo/MockQRCode";
 import { WalletPassMockup } from "@/components/demo/WalletPassMockup";
 
-type Props = { venueName: string; tierName?: string; venueSlug?: string | null; isActive?: boolean };
+type Props = { venueName: string; tierName?: string; venueSlug?: string | null; isActive?: boolean; memberSince?: string | null };
 
 /** Left panel: one mock QR for the selected venue. Parent controls visibility/size. */
 export function MembershipViewMockupsLeft({ venueName }: Props) {
@@ -20,17 +20,19 @@ export function MembershipViewMockupsRight({
   tierName = "Member",
   venueSlug = "the-function-sf",
   isActive = true,
+  memberSince,
 }: Props) {
   return (
     <div className="hidden md:flex flex-col items-center justify-center w-full max-w-[300px]">
       <WalletPassMockup
         venueName={venueName}
         tierName={tierName}
+        memberSince={memberSince ?? undefined}
         venueSlug={venueSlug ?? "the-function-sf"}
         showActiveInScanArea={isActive}
         active={isActive}
       />
-      <p className="mt-3 text-center text-[10px] uppercase tracking-wider text-white/50">
+      <p className="mt-3 text-center text-[10px] uppercase tracking-wider text-white/50" aria-hidden="true">
         Apple / Google Wallet mockup
       </p>
     </div>

@@ -64,6 +64,10 @@ export function LandingSignInContent({
   const getCallbackUrl = () =>
     typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : "/auth/callback";
 
+  /** OAuth returns here so the code verifier (in browser cookies) is available; no server hop. */
+  const getOAuthRedirectUrl = () =>
+    typeof window !== "undefined" ? `${window.location.origin}/auth/complete` : "/auth/complete";
+
   const signInWithOAuth = async (provider: OAuthProvider) => {
     const next = searchParams.get("next")?.trim() || effectiveDefaultNext;
     document.cookie = `${AUTH_NEXT_COOKIE}=${encodeURIComponent(next)}; Path=/; Max-Age=${60 * 10}; SameSite=Lax`;
@@ -71,7 +75,7 @@ export function LandingSignInContent({
     setAuthError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: getCallbackUrl() },
+      options: { redirectTo: getOAuthRedirectUrl() },
     });
     setOauthLoading(null);
     if (error) setAuthError(error.message || "Sign-in failed. Try again.");
@@ -116,7 +120,7 @@ export function LandingSignInContent({
         )}
         {!showHero && (
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            {isAdminMode ? "Admin sign-in" : "Sign in to continue"}
+            {isAdminMode ? "Admin sign-in" : "Sign in to COTERI — venue membership and access control"}
           </p>
         )}
       </div>

@@ -1,11 +1,14 @@
 "use client";
 
-/** Venue slug to pick card background image. */
-const VENUE_CARD_BG: Record<string, string> = {
-  "the-function-sf": "/venues/3.png",
-  "the-starry-plough":
-    "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80",
-};
+import { getVenueBannerImage } from "@/lib/venue-banners";
+
+/** Venue slug to pick card background image (pilots + fallback). Mock venues use getVenueBannerImage. */
+function getCardBg(slug: string): string {
+  if (slug === "the-function-sf") return "/venues/3.png";
+  if (slug === "the-starry-plough")
+    return "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80";
+  return getVenueBannerImage(slug);
+}
 
 type Props = {
   venueName?: string;
@@ -14,7 +17,7 @@ type Props = {
   memberName?: string;
   /** Venue slug for background image (Function SF = stage, Starry Plough = Guinness). */
   venueSlug?: string;
-  /** Show red "ACTIVE" in the white scan area when true. */
+  /** Show green "ACTIVE" in the white scan area when true (semantic success, a11y). */
   showActiveInScanArea?: boolean;
   /** When false, show inactive state (no ACTIVE/VALID, or "No active membership"). */
   active?: boolean;
@@ -34,7 +37,7 @@ export function WalletPassMockup({
   showActiveInScanArea = true,
   active = true,
 }: Props) {
-  const bgImage = VENUE_CARD_BG[venueSlug] ?? VENUE_CARD_BG["the-function-sf"];
+  const bgImage = getCardBg(venueSlug);
 
   return (
     <div className="mx-auto w-[280px] rounded-2xl overflow-hidden border border-white/20 shadow-xl relative">
@@ -115,7 +118,7 @@ export function WalletPassMockup({
               )}
             </div>
             {showActiveInScanArea && active && (
-              <span className="mt-2 text-sm font-bold uppercase tracking-widest text-red-600" aria-hidden>
+              <span className="mt-2 text-sm font-bold uppercase tracking-widest text-green-600" aria-hidden>
                 Active
               </span>
             )}

@@ -7,19 +7,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:app": "eslint app src",
+    "check": "npm run build && npx tsc --noEmit && npm run lint:app"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.48",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.2",
+    "ai": "^6.0.103",
     "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.6",
+    "ollama-ai-provider-v2": "^3.3.1",
     "passkit-generator": "^3.5.7",
     "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "stripe": "^20.3.1"
+    "stripe": "^20.3.1",
+    "zod": "^4.3.6"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -86,6 +86,146 @@
   pointer-events: none;
 }
 
+/* Mock venues (marketing splash) — themed like Starry Plough for pass/dashboard previews */
+.venue-blurred-mock {
+  position: relative;
+  isolation: isolate;
+}
+.venue-blurred-mock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--venue-mock-bg-image);
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+  transform: scale(1.03);
+}
+.venue-blurred-mock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+/* Full-page mock venue background (dashboard/membership when mock venue selected) */
+.venue-blurred-mock-page {
+  position: relative;
+  isolation: isolate;
+}
+.venue-blurred-mock-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--venue-mock-bg-image);
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+  transform: scale(1.03);
+}
+.venue-blurred-mock-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+/* Pacific Greens — teal / plant-forward */
+.venue-theme.venue-theme-pacific-greens {
+  --venue-bg: #0a1412;
+  --venue-bg-elevated: #0f1c18;
+  --venue-sidebar-bg: rgba(10, 20, 18, 0.95);
+  --venue-text: #d1fae5;
+  --venue-text-muted: #6ee7b7;
+  --venue-accent: #14b8a6;
+  --venue-accent-glow: rgba(20, 184, 166, 0.35);
+  --venue-secondary: #0d9488;
+  --venue-success: #10b981;
+  --venue-success-glow: rgba(16, 185, 129, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1920&q=80');
+}
+
+/* La Rueda — amber / Latin warmth */
+.venue-theme.venue-theme-la-rueda {
+  --venue-bg: #1c1410;
+  --venue-bg-elevated: #261a14;
+  --venue-sidebar-bg: rgba(28, 20, 16, 0.95);
+  --venue-text: #fef3c7;
+  --venue-text-muted: #fcd34d;
+  --venue-accent: #d97706;
+  --venue-accent-glow: rgba(217, 119, 6, 0.4);
+  --venue-secondary: #b45309;
+  --venue-success: #ca8a04;
+  --venue-success-glow: rgba(202, 138, 4, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=80');
+}
+
+/* Strike Zone — blue / sports bar */
+.venue-theme.venue-theme-strike-zone {
+  --venue-bg: #0f1729;
+  --venue-bg-elevated: #1e293b;
+  --venue-sidebar-bg: rgba(15, 23, 41, 0.95);
+  --venue-text: #e0f2fe;
+  --venue-text-muted: #7dd3fc;
+  --venue-accent: #0ea5e9;
+  --venue-accent-glow: rgba(14, 165, 233, 0.4);
+  --venue-secondary: #0369a1;
+  --venue-success: #0284c7;
+  --venue-success-glow: rgba(2, 132, 199, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1920&q=80');
+}
+
+/* The Velvet Room — purple / lounge */
+.venue-theme.venue-theme-the-velvet-room {
+  --venue-bg: #1e1b2e;
+  --venue-bg-elevated: #2d2640;
+  --venue-sidebar-bg: rgba(30, 27, 46, 0.95);
+  --venue-text: #ede9fe;
+  --venue-text-muted: #c4b5fd;
+  --venue-accent: #a78bfa;
+  --venue-accent-glow: rgba(167, 139, 250, 0.4);
+  --venue-secondary: #7c3aed;
+  --venue-success: #8b5cf6;
+  --venue-success-glow: rgba(139, 92, 246, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1920&q=80');
+}
+
+/* The Hideout — rust / dive bar */
+.venue-theme.venue-theme-the-hideout {
+  --venue-bg: #1c0f0a;
+  --venue-bg-elevated: #291510;
+  --venue-sidebar-bg: rgba(28, 15, 10, 0.95);
+  --venue-text: #fed7aa;
+  --venue-text-muted: #fdba74;
+  --venue-accent: #ea580c;
+  --venue-accent-glow: rgba(234, 88, 12, 0.4);
+  --venue-secondary: #c2410c;
+  --venue-success: #f97316;
+  --venue-success-glow: rgba(249, 115, 22, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=1920&q=80');
+}
+
+/* Bar None — stone / cocktail bar */
+.venue-theme.venue-theme-bar-none {
+  --venue-bg: #141414;
+  --venue-bg-elevated: #1f1f1f;
+  --venue-sidebar-bg: rgba(20, 20, 20, 0.95);
+  --venue-text: #e7e5e4;
+  --venue-text-muted: #a8a29e;
+  --venue-accent: #78716c;
+  --venue-accent-glow: rgba(120, 113, 108, 0.4);
+  --venue-secondary: #57534e;
+  --venue-success: #22c55e;
+  --venue-success-glow: rgba(34, 197, 94, 0.35);
+  --venue-mock-bg-image: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80');
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

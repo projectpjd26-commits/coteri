@@ -65,6 +65,11 @@ export default async function JoinPage({
                 <h2 className="font-semibold text-lg text-slate-900 dark:text-slate-100">
                   {v.name}
                 </h2>
+                {v.description && (
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                    {v.description}
+                  </p>
+                )}
                 {canGrantSelf ? (
                   <form
                     action={`/api/internal/demo-grant-membership?venue=${encodeURIComponent(v.slug)}&next=/dashboard`}
